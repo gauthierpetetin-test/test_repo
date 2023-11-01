@@ -142,9 +142,16 @@ async function main(): Promise<void> {
         invalidPullRequestTemplateLabel,
       );
 
+      // TODO: Remove these two lines in Janiary 2024. By then, most PRs will match the new PR template, and we'll want the action to fail if they don't.
+      // For now, we're in a transition period and Github action shall add an annotation in case PR doesn't match template, but shall not fail.
+      // Indeed, many PRs were created before the new PR template was introduced and don't match the template for now.
+      core.error(errorMessage); // This creates an annotation on the PR
+      process.exit(0);
+
+      // TODO: Uncomment these two lines in January 2024. By then, most PRs will match the new PR template, and we'll want the action to fail if they don't.
       // Github action shall fail in case PR doesn't match template
-      core.setFailed(errorMessage);
-      process.exit(1);
+      // core.setFailed(errorMessage); // This creates a failure status for the action
+      // process.exit(1);
     }
   } else {
     core.setFailed(
