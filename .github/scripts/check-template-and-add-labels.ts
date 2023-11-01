@@ -132,7 +132,7 @@ async function main(): Promise<void> {
       );
     } else {
       const errorMessage =
-        "PR body does not match template ('pull-request-template.md').";
+        `PR body does not match template ('pull-request-template.md').\n\nIt shall include at least all section titles listed here: https://github.com/MetaMask/metamask-mobile/blob/main/.github/scripts/shared/template.ts#L40-L47`;
       console.log(errorMessage);
 
       // Add label to indicate PR body doesn't match template
@@ -145,7 +145,12 @@ async function main(): Promise<void> {
       // TODO: Remove these two lines in Janiary 2024. By then, most PRs will match the new PR template, and we'll want the action to fail if they don't.
       // For now, we're in a transition period and Github action shall add an annotation in case PR doesn't match template, but shall not fail.
       // Indeed, many PRs were created before the new PR template was introduced and don't match the template for now.
-      core.error(errorMessage, { title: invalidPullRequestTemplateLabel.name }); // This creates an annotation on the PR
+      core.error(errorMessage, {
+        title: invalidPullRequestTemplateLabel.name,
+        file: '.github/scripts/shared/template.ts',
+        startLine: 40,
+        endLine: 47,
+      }); // This creates an annotation on the PR
       process.exit(0);
 
       // TODO: Uncomment these two lines in January 2024. By then, most PRs will match the new PR template, and we'll want the action to fail if they don't.
