@@ -19,7 +19,7 @@ import {
 import { TemplateType, templates } from './shared/template';
 import { retrievePullRequest } from './shared/pullRequest';
 
-const knownBots = ["gauthierpetetin", "metamaskbot", "dependabot", "github-actions", "sentry-io"];
+const knownBots = ["metamaskbot", "dependabot", "github-actions", "sentry-io"];
 
 main().catch((error: Error): void => {
   console.error(error);
