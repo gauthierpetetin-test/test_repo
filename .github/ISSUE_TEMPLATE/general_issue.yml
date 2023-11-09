@@ -97,8 +97,6 @@ body:
     id: stakeholder-review
     attributes:
       label: Stakeholder review needed befor the work gets merged
-      placeholder: |
-        - Indicate which stakeholder need to review the work before it gets merged
       options:
         - label: Engineering (needed in most cases)
         - label: Design
