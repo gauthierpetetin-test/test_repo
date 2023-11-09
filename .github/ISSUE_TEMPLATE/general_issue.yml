@@ -99,7 +99,6 @@ body:
       label: Indicate which stakeholders need to review the work before it gets merged
       options:
         - label: Engineering (needed in most cases)
-          default: true
         - label: Design
         - label: Product
         - label: QA (please avoid requesting manual QA if possible - rely on automated tests instead)
