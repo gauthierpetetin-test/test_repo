@@ -19,6 +19,8 @@ import {
 import { TemplateType, templates } from './shared/template';
 import { retrievePullRequest } from './shared/pullRequest';
 
+import teamsNotUsingTemplates from './shared/teams-not-using-templates.json';
+
 const knownBots = ["metamaskbot", "dependabot", "github-actions", "sentry-io"];
 
 main().catch((error: Error): void => {
@@ -90,6 +92,18 @@ async function main(): Promise<void> {
   }
 
   if (labelable.type === LabelableType.Issue) {
+  
+    // If labelable belongs to a team not using templates, we skip the template checks
+    if (isIssueFromTeamNotUsingTemplates(labelable)) {
+      console.log(`Issue ${labelable?.number} was created by a team not using templates. Skip template checks.`);
+      await removeLabelFromLabelableIfPresent(
+        octokit,
+        labelable,
+        invalidIssueTemplateLabel,
+      );
+      process.exit(0); // Stop the process and exit with a success status code
+    }
+
     if (templateType === TemplateType.GeneralIssue) {
       console.log("Issue matches 'general-issue.yml' template.");
       await removeLabelFromLabelableIfPresent(
@@ -299,4 +313,16 @@ function isReleaseCandidateIssue(
   issue: Labelable,
 ): boolean {
   return Boolean(issue.labels.find(label => label.name === 'regression-RC'));
+}
+
+// This function checks if issue belongs to a team not using templates.
+function isIssueFromTeamNotUsingTemplates(
+  issue: Labelable,
+): boolean {
+  for (const teamLabel of teamsNotUsingTemplates) {
+    if (issue.labels.find(label => label.name === teamLabel)) {
+      return true;
+    }
+  }
+  return false;
 }
