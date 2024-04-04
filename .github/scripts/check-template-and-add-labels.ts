@@ -6,6 +6,7 @@ import { retrieveIssue } from './shared/issue';
 import {
   Labelable,
   LabelableType,
+  findLabel,
   addLabelToLabelable,
   removeLabelFromLabelable,
   removeLabelFromLabelableIfPresent,
@@ -13,6 +14,7 @@ import {
 import {
   Label,
   externalContributorLabel,
+  flakyTestsLabel,
   invalidIssueTemplateLabel,
   invalidPullRequestTemplateLabel,
 } from './shared/label';
@@ -96,6 +98,18 @@ async function main(): Promise<void> {
     // If labelable belongs to a team not using templates, we skip the template checks
     if (isIssueFromTeamNotUsingTemplates(labelable)) {
       console.log(`Issue ${labelable?.number} was created by a team not using templates. Skip template checks.`);
+      await removeLabelFromLabelableIfPresent(
+        octokit,
+        labelable,
+        invalidIssueTemplateLabel,
+      );
+      process.exit(0); // Stop the process and exit with a success status code
+    }
+
+    // If labelable is a flaky test report, no template is needed (we just add a link to circle.ci in the description), we skip the template checks
+    const flakyTestsLabelFound = findLabel(labelable, flakyTestsLabel);
+    if (flakyTestsLabelFound?.id) {
+      console.log(`Issue ${labelable?.number} was created to report a flaky test. No template is needed in that case: we just add a link to circle.ci in the description. Skip template checks.`);
       await removeLabelFromLabelableIfPresent(
         octokit,
         labelable,
