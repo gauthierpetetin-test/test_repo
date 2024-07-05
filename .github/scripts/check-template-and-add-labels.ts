@@ -275,7 +275,7 @@ async function addRegressionLabelToIssue(
   );
 
   // Craft regression label to add
-  let regressionLabel: Label | undefined;
+  let regressionLabel: Label;
   if (regressionStage === RegressionStage.Development) {
     regressionLabel = {
       name: `regression-develop`,
@@ -286,52 +286,55 @@ async function addRegressionLabelToIssue(
     regressionLabel = {
       name: `regression-RC-${releaseVersion || '*'}`,
       color: '744C11', // orange
-      description: releaseVersion ? `Regression bug that was found in release candidate (RC) for release ${releaseVersion}` : `TODO: Unknown release version. Please replace with correct regression-RC-x.y.z label, where x.y.z is the number of the release where bug was found.`,
+      description: releaseVersion ? `Regression bug that was found in release candidate (RC) for release ${releaseVersion}` : `TODO: Unknown release version. Please replace with correct 'regression-RC-x.y.z' label, where 'x.y.z' is the number of the release where bug was found.`,
     };
   } else if (regressionStage === RegressionStage.Production) {
     regressionLabel = {
       name: `regression-prod-${releaseVersion || '*'}`,
       color: '5319E7', // violet
-      description: releaseVersion ? `Regression bug that was found in production in release ${releaseVersion}` : `TODO: Unknown release version. Please replace with correct regression-prod-x.y.z label, where x.y.z is the number of the release where bug was found.`,
+      description: releaseVersion ? `Regression bug that was found in production in release ${releaseVersion}` : `TODO: Unknown release version. Please replace with correct 'regression-prod-x.y.z' label, where 'x.y.z' is the number of the release where bug was found.`,
+    };
+  } else {
+    regressionLabel = {
+      name: `regression-*`,
+      color: 'EDEDED', // grey
+      description: `TODO: Unknown regression stage. Please replace with correct regression label: 'regression-develop', 'regression-RC-x.y.z', or 'regression-prod-x.y.z' label, where 'x.y.z' is the number of the release where bug was found.`,
     };
   }
 
-  if (regressionLabel) {
-    let regressionLabelFound: boolean = false;
-    const regressionLabelsToBeRemoved: {
-      id: string;
-      name: string;
-    }[] = [];
-  
-    // Loop over issue's labels, to see if regression labels are either missing, or to be removed
-    issue?.labels?.forEach((label) => {
-      if (label?.name === regressionLabel.name) {
-        regressionLabelFound = true;
-      } else if (label?.name?.startsWith('regression-')) {
-        regressionLabelsToBeRemoved.push(label);
-      }
-    });
-  
-    // Add regression prod label to the issue if missing
-    if (regressionLabelFound) {
-      console.log(
-        `Issue ${issue?.number} already has ${regressionLabel.name} label.`,
-      );
-    } else {
-      console.log(
-        `Add ${regressionLabel.name} label to issue ${issue?.number}.`,
-      );
-      await addLabelToLabelable(octokit, issue, regressionLabel);
+  let regressionLabelFound: boolean = false;
+  const regressionLabelsToBeRemoved: {
+    id: string;
+    name: string;
+  }[] = [];
+
+  // Loop over issue's labels, to see if regression labels are either missing, or to be removed
+  issue?.labels?.forEach((label) => {
+    if (label?.name === regressionLabel.name) {
+      regressionLabelFound = true;
+    } else if (label?.name?.startsWith('regression-')) {
+      regressionLabelsToBeRemoved.push(label);
     }
-  
-    // Remove other regression prod label from the issue
-    await Promise.all(
-      regressionLabelsToBeRemoved.map((label) => {
-        removeLabelFromLabelable(octokit, issue, label?.id);
-      }),
+  });
+
+  // Add regression prod label to the issue if missing
+  if (regressionLabelFound) {
+    console.log(
+      `Issue ${issue?.number} already has ${regressionLabel.name} label.`,
     );
+  } else {
+    console.log(
+      `Add ${regressionLabel.name} label to issue ${issue?.number}.`,
+    );
+    await addLabelToLabelable(octokit, issue, regressionLabel);
   }
 
+  // Remove other regression prod label from the issue
+  await Promise.all(
+    regressionLabelsToBeRemoved.map((label) => {
+      removeLabelFromLabelable(octokit, issue, label?.id);
+    }),
+  );
 }
 
 // This function checks if user belongs to MetaMask organization on Github
