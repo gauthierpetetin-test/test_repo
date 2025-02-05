@@ -243,7 +243,7 @@ export async function updateGithubProjectDateFieldValue(
   }
 
   const updateGithubProjectDatePropertyMutation = `
-      mutation ($projectId: ID!, $itemId: ID!, $fieldId: ID!, $date: String!) {
+      mutation ($projectId: ID!, $itemId: ID!, $fieldId: ID!, $date: Date!) {
         updateProjectV2ItemFieldValue(
             input: {
                 projectId: $projectId
