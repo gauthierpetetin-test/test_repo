@@ -183,9 +183,9 @@ export async function retrieveGithubProjectIssueFieldValuesRecursively(
 
   if (projectIssueFieldValuesResponseWithSameId) {
     const projectIssueFieldValues: GithubProjectIssueFieldValues = {
-      id: projectIssueFieldValuesResponseWithSameId.content.id,
+      id: projectIssueFieldValuesResponseWithSameId.content?.id,
       itemId: projectIssueFieldValuesResponseWithSameId.id,
-      cutDate: projectIssueFieldValuesResponseWithSameId.cutDate.date,
+      cutDate: projectIssueFieldValuesResponseWithSameId.cutDate?.date,
     };
     return projectIssueFieldValues;
   }
