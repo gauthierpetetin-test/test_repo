@@ -60,7 +60,7 @@ export async function retrieveGithubProject(
     `;
 
   const retrieveProjectResult: {
-    organization: {
+    user: {
       projectV2: {
         id: string;
         fields: {
@@ -76,8 +76,8 @@ export async function retrieveGithubProject(
   });
 
   const project: GithubProject = {
-    id: retrieveProjectResult.organization.projectV2.id,
-    fields: retrieveProjectResult.organization.projectV2.fields.nodes,
+    id: retrieveProjectResult?.user?.projectV2?.id,
+    fields: retrieveProjectResult?.user.projectV2?.fields?.nodes,
   };
 
   if (!project) {
